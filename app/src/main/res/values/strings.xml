@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BuscaNome</string>
+    <string name="title">Saiba a populariade\ndo seu nome</string>
+    <string name="field_name">Nome</string>
+    <string name="field_name_example">ex: Joao</string>
+    <string name="subtitle_popular_names">Nomes Populares</string>
+</resources>
