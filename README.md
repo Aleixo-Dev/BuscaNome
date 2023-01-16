@@ -20,11 +20,9 @@
 
 - [Linguagem Kotlin](https://kotlinlang.org/)
 
-- Jetpack
-  - RecyclerView: Criar lista de forma dinâmicas
+- Jetpack Compose
   - Lifecycle: Observe os ciclos de vida do Android e manipule os estados da interface do usuário após as alterações do ciclo de vida.
   - ViewModel: Gerencia o detentor de dados relacionados à interface do usuário e o ciclo de vida. Permite que os dados sobrevivam a alterações de configuração, como rotações de tela.
-  - Dagger  os componentes do XML no Kotlin através de uma classe que garante segurança de tipo e outras vantagens.
   - Flow: Fluxo que emit multiplos valores sequencialmente.
 
 - Arquitetura
@@ -41,7 +39,7 @@
 - Bibliotecas
   - [Retrofit2](https://github.com/square/retrofit): Para realizar requisições seguindo o padrão HTTP.
   - [SplashScreen](https://developer.android.com/develop/ui/views/launch/splash-screen): Criar splash screen de maneira facíl
-  - [Maps](https://developers.google.com/maps): Visualizar no mapa a localização do cep
+  - [Dagger-Hilt](https://developer.android.com/training/dependency-injection/hilt-android): Injeção de dependencia.
 
 # Licença
 ```xml
