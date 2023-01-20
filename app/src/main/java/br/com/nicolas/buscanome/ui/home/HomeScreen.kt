@@ -4,12 +4,16 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,10 +24,12 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,74 +53,74 @@ fun HomeScreen(
     var name by remember {
         mutableStateOf("")
     }
-    //Scaffold(bottomBar = { AdvertView() }) {
-    Box {
-        Image(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(155.dp)
-                .clip(
-                    RoundedCornerShape(
-                        bottomEnd = 30.dp, bottomStart = 30.dp
-                    )
-                ),
-            painter = painterResource(id = R.drawable.circle_background),
-            contentDescription = "",
-            contentScale = ContentScale.FillWidth
-        )
-        Column(
-            modifier = modifier.padding(
-                start = 15.dp,
-                end = 15.dp,
-                top = 10.dp
+    Scaffold(bottomBar = { AdvertView() }) {
+        Box {
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(155.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            bottomEnd = 30.dp, bottomStart = 30.dp
+                        )
+                    ),
+                painter = painterResource(id = R.drawable.circle_background),
+                contentDescription = "",
+                contentScale = ContentScale.FillWidth
             )
-        ) {
-            SearchName(onValueChange = {
-                name = it
-                if (name.length >= 4) viewModel.onEvent(DataEvent.Search(name)) else viewModel.onEvent(
-                    DataEvent.Popular
+            Column(
+                modifier = modifier.padding(
+                    start = 15.dp,
+                    end = 15.dp,
+                    top = 10.dp
                 )
-            })
-            Spacer(modifier = Modifier.size(16.dp))
-            if (state.loading) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator()
+            ) {
+                SearchName(onValueChange = {
+                    name = it
+                    if (name.isNotEmpty()) viewModel.onEvent(DataEvent.Search(name)) else viewModel.onEvent(
+                        DataEvent.Popular
+                    )
+                })
+                Spacer(modifier = Modifier.size(16.dp))
+                if (state.loading) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            }
-            if (!state.error.equals("")) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                if (!state.error.equals("")) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = state.error.toString(),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                AnimatedVisibility(visible = state.showPopular) {
                     Text(
-                        text = state.error.toString(),
-                        textAlign = TextAlign.Center,
+                        text = "Nomes Populares",
+                        style = MaterialTheme.typography.h6,
                         fontWeight = FontWeight.Bold
                     )
                 }
-            }
-            AnimatedVisibility(visible = state.showPopular) {
-                Text(
-                    text = "Nomes Populares",
-                    style = MaterialTheme.typography.h6,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            Spacer(modifier = Modifier.size(8.dp))
-            AnimatedVisibility(visible = state.showNames, /* modifier = Modifier.padding(it) */) {
-                state.successNames?.let { NamesContent(state = it) }
-            }
-            AnimatedVisibility(visible = state.showPopular, /* modifier = Modifier.padding(it) */) {
-                PopularContent(state = state.successPopular)
+                Spacer(modifier = Modifier.size(8.dp))
+                AnimatedVisibility(visible = state.showNames, modifier = Modifier.padding(it)) {
+                    state.successNames?.let { NamesContent(state = it) }
+                }
+                AnimatedVisibility(visible = state.showPopular, modifier = Modifier.padding(it)) {
+                    PopularContent(state = state.successPopular)
+                }
             }
         }
     }
-    // }
 }
 
 @SuppressLint("VisibleForTests")
@@ -147,12 +153,13 @@ fun AdView() {
 @Composable
 fun SearchName(onValueChange: (String) -> Unit = {}) {
 
+    val focusManager = LocalFocusManager.current
     var name by remember { mutableStateOf("") }
 
     Text(
         text = stringResource(id = R.string.title),
         style = MaterialTheme.typography.h5,
-        color = Color.White
+        color = White
     )
     Spacer(modifier = Modifier.size(10.dp))
     TextField(
@@ -165,19 +172,34 @@ fun SearchName(onValueChange: (String) -> Unit = {}) {
         },
         onValueChange = {
             name = it
-            onValueChange(it)
         },
         singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
         label = {
             Text(
                 text = stringResource(id = R.string.field_name),
                 style = MaterialTheme.typography.body2
             )
+        }, trailingIcon = {
+            if (name.isNotEmpty()) Icon(
+                Icons.Rounded.Close,
+                contentDescription = "",
+                modifier = Modifier.clickable {
+                    name = ""
+                    onValueChange.invoke(name)
+                }
+            )
         },
+        keyboardActions = KeyboardActions(onSearch = {
+            onValueChange.invoke(name)
+            focusManager.clearFocus()
+        }),
         placeholder = { Text(text = stringResource(id = R.string.field_name_example)) },
         shape = RoundedCornerShape(8.dp),
         colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color.White,
+            backgroundColor = White,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         )
@@ -231,13 +253,13 @@ fun CardNames(name: Name) {
             Text(
                 text = "Periodo: ${
                     name.period?.replace("[", "")?.replace("]", "")?.replace(",", "-")
-                } ", color = Color.White,
+                } ", color = White,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "freq: ${name.freq.toString()}",
-                color = Color.White,
+                color = White,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -259,14 +281,14 @@ fun CardPopularNames(popularName: PopularName) {
             Text(
                 text = popularName.rank.toString(),
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = White
             )
             Spacer(modifier = Modifier.size(10.dp))
-            Text(text = "Nome: ${popularName.name.toString()}", color = Color.White)
+            Text(text = "Nome: ${popularName.name.toString()}", color = White)
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "freq: ${popularName.freq.toString()}",
-                color = Color.White,
+                color = White,
                 fontWeight = FontWeight.Bold
             )
         }
