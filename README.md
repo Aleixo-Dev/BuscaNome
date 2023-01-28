@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">  
-🔍 aplicativo onde busca os nome mais populares e comuns onde também é possível ver a frequência do seu nome.
+🔍 Aplicativo onde busca os nome mais populares e comuns onde também é possível ver a frequência do seu nome.
 </p>
 
 <a href="https://play.google.com/store/apps/details?id=br.com.nicolas.consultacd">
