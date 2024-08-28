@@ -8,14 +8,14 @@ plugins {
 
 android {
     namespace 'br.com.nicolas.buscanome'
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         applicationId "br.com.nicolas.buscanome"
         minSdk 24
-        targetSdk 32
-        versionCode 3
-        versionName "2.0.1"
+        targetSdk 33
+        versionCode 4
+        versionName "3.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
